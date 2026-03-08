@@ -52,7 +52,7 @@ function releasePhrase() {
 
 function createImageElement(index) {
   const img = document.createElement("img");
-  img.src = `ảnh/anh${index}.jpg`; 
+  img.src = anh${index}.jpg;
   img.className = "phrase shooting";
   img.style.cssText = `
     width: 200px;
@@ -148,4 +148,5 @@ playPauseBtn.addEventListener("click", togglePlayPause);
 progressBar.addEventListener("click", (e) => { const rect = progressBar.getBoundingClientRect(); audioPlayer.currentTime = ((e.clientX - rect.left) / rect.width) * audioPlayer.duration; });
 audioPlayer.addEventListener("timeupdate", updateProgress);
 toggleBtn.addEventListener("click", () => musicPlayer.classList.toggle("minimized"));
+
 initGalaxy();
