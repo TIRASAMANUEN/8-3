@@ -52,7 +52,7 @@ function releasePhrase() {
 
 function createImageElement(index) {
   const img = document.createElement("img");
-  img.src = anh${index}.jpg;
+  img.src = ảnh/anh${index}.jpg;
   img.className = "phrase shooting";
   img.style.cssText = `
     width: 200px;
@@ -150,3 +150,4 @@ audioPlayer.addEventListener("timeupdate", updateProgress);
 toggleBtn.addEventListener("click", () => musicPlayer.classList.toggle("minimized"));
 
 initGalaxy();
+
