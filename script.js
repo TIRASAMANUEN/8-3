@@ -20,17 +20,19 @@ function createStars() {
 }
 createStars();
 
-// 2. Thuật toán xếp ảnh theo hình Elip (Đã chỉnh bán kính sát tâm hơn)
+// 2. Thuật toán xếp ảnh theo hình Elip/Vòng tròn siêu cân đối
 function getEllipseSpot(index, total, w, h) {
   const sw = window.innerWidth;
   const sh = window.innerHeight;
   const cx = sw / 2;
   const cy = sh / 2;
 
-  // THAY ĐỔI TẠI ĐÂY: Giảm từ 0.70 xuống 0.38 để ảnh gần tim hơn khi cap màn hình
-  const rx = Math.min((sw / 2) * 0.38, (sw / 2) - w / 2 - 20);
-  const ry = Math.min((sh / 2) * 0.42, (sh / 2) - h / 2 - 20);
+  // Bán kính Elip: Chiếm khoảng 70% không gian từ tâm ra viền màn hình
+  // Dùng Math.min để đảm bảo ảnh không bao giờ bị tràn ra khỏi màn hình
+  const rx = Math.min((sw / 2) * 0.70, (sw / 2) - w / 2 - 20);
+  const ry = Math.min((sh / 2) * 0.75, (sh / 2) - h / 2 - 20);
 
+  // Chia đều 360 độ (2*PI) cho 10 ảnh. Trừ đi PI/2 để ảnh đầu tiên nằm chóp đỉnh
   const angle = (index - 1) * (Math.PI * 2) / total - Math.PI / 2;
 
   const x = cx + rx * Math.cos(angle) - w / 2;
@@ -45,9 +47,10 @@ function spawnPhoto(index) {
   img.src = `anh${index}.jpg`;
   img.onerror = () => { img.src = `ảnh/anh${index}.jpg`; };
 
-  const w = 150; const h = 210; 
+  const w = 150; const h = 210; // Kích thước ảnh nhỏ lại 1 chút để k bị chật
   const spot = getEllipseSpot(index, totalPhotos, w, h);
 
+  // Cho ảnh nghiêng nhẹ ngẫu nhiên để trông nghệ thuật hơn (như ảnh polaroid thật)
   const randomRotate = (Math.random() - 0.5) * 25; 
 
   img.style.cssText = `
@@ -63,12 +66,11 @@ function spawnPhoto(index) {
     z-index: 10;
     transform: rotate(${randomRotate}deg) scale(0);
     transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    /* Dòng này cực quan trọng để không bị lỗi bấm trúng ảnh thay vì bấm tim */
-    pointer-events: none; 
   `;
 
   scene.appendChild(img);
   
+  // Kích hoạt hiệu ứng bung ảnh
   setTimeout(() => { 
     img.style.transform = `rotate(${randomRotate}deg) scale(1)`; 
   }, 50);
@@ -105,11 +107,13 @@ heartBtn.addEventListener("click", () => {
   if (clickCount < totalPhotos) {
     clickCount++;
     
+    // Hiệu ứng đập tim từ style.css
     heartBtn.classList.add("clicked");
     setTimeout(() => heartBtn.classList.remove("clicked"), 500);
 
     spawnPhoto(clickCount);
     
+    // Nếu là lần bấm thứ 10, bung luôn lời chúc
     if (clickCount === totalPhotos) {
       setTimeout(() => showFinal(), 200);
     }
