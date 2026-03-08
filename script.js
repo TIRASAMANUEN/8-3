@@ -3,6 +3,9 @@ const heartBtn = document.getElementById("heartBtn");
 const audio = document.getElementById("audioPlayer");
 let clickCount = 0;
 
+// Danh sách lưu vị trí của các ảnh đã hiện để kiểm tra va chạm
+const occupiedAreas = [];
+
 // 1. Tạo hiệu ứng sao bay nền
 function createStars() {
   const container = document.getElementById("starsContainer");
@@ -17,45 +20,99 @@ function createStars() {
 }
 createStars();
 
-// 2. Hàm bổ trợ chuyển động (Hàm này cực kỳ quan trọng)
-function applyMotion(el) {
-  const shootX = (Math.random() - 0.5) * 500;
-  const shootY = (Math.random() - 0.5) * 500;
-  const finalX = (Math.random() - 0.5) * 400;
-  const finalY = (Math.random() - 0.5) * 400;
-  const rotation = (Math.random() - 0.5) * 45;
+// 2. Thuật toán kiểm tra vị trí ngẫu nhiên không va chạm
+function getSafeRandomPosition(width, height) {
+  const padding = 20; // Khoảng cách tối thiểu giữa các ảnh
+  let maxAttempts = 50; // Số lần thử tối đa để tìm vị trí trống
+  let pos = { x: 0, y: 0 };
 
-  el.style.setProperty("--shoot-x", `${shootX}px`);
-  el.style.setProperty("--shoot-y", `${shootY}px`);
-  el.style.setProperty("--final-x", `${finalX}px`);
-  el.style.setProperty("--final-y", `${finalY}px`);
-  el.style.setProperty("--rotation", `${rotation}deg`);
-  el.style.setProperty("--duration", "5s");
+  // Định nghĩa vùng an toàn ở giữa cho lời chúc cuối
+  const safeZone = {
+    x: scene.clientWidth / 2 - 200, // Chiều rộng vùng an toàn khoảng 400px
+    y: scene.clientHeight / 2 - 150, // Chiều cao vùng an toàn khoảng 300px
+    width: 400,
+    height: 300,
+  };
+
+  while (maxAttempts > 0) {
+    pos.x = Math.random() * (scene.clientWidth - width - padding * 2) + padding;
+    pos.y = Math.random() * (scene.clientHeight - height - padding * 2) + padding;
+
+    // Kiểm tra xem vị trí có nằm trong vùng an toàn của lời chúc không
+    const inSafeZone =
+      pos.x < safeZone.x + safeZone.width &&
+      pos.x + width > safeZone.x &&
+      pos.y < safeZone.y + safeZone.height &&
+      pos.y + height > safeZone.y;
+
+    if (inSafeZone) {
+      maxAttempts--;
+      continue; // Thử lại vị trí khác
+    }
+
+    // Kiểm tra xem vị trí có va chạm với các ảnh đã tồn tại không
+    let isCollision = false;
+    for (let area of occupiedAreas) {
+      if (
+        pos.x < area.x + area.width + padding &&
+        pos.x + width > area.x - padding &&
+        pos.y < area.y + area.height + padding &&
+        pos.y + height > area.y - padding
+      ) {
+        isCollision = true;
+        break;
+      }
+    }
+
+    if (!isCollision) {
+      occupiedAreas.push({ x: pos.x, y: pos.y, width: width, height: height });
+      return pos; // Tìm thấy vị trí an toàn
+    }
+    maxAttempts--;
+  }
+
+  // Nếu không tìm thấy, trả về một vị trí mặc định để ảnh không bị "lạc"
+  return pos;
 }
 
-// 3. Hàm tạo ảnh kỷ niệm bay ra
+// 3. Hàm tạo ảnh kỷ niệm bay ra và TỒN TẠI VĨNH VIỄN
 function createImageElement(index) {
   const img = document.createElement("img");
-  // Thử tìm ảnh ở ngoài trước, nếu lỗi thì tìm trong thư mục "ảnh"
   img.src = `anh${index}.jpg`;
   img.onerror = function() {
     this.src = `ảnh/anh${index}.jpg`;
   };
-  
+
+  // Định nghĩa kích thước cố định cho ảnh để thuật toán kiểm tra va chạm hoạt động chính xác
+  const imgWidth = 200;
+  const imgHeight = 250; // Giả sử ảnh dọc
+
   img.className = "phrase shooting";
   img.style.cssText = `
-    width: 200px;
-    height: auto;
+    width: ${imgWidth}px;
+    height: ${imgHeight}px;
     border-radius: 15px;
     border: 5px solid #fff;
     box-shadow: 0 0 20px rgba(255, 105, 180, 0.5);
     position: absolute;
     z-index: 100;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 1s ease, transform 0.5s ease;
   `;
-  
-  applyMotion(img);
+
+  const pos = getSafeRandomPosition(imgWidth, imgHeight);
+  img.style.left = `${pos.x}px`;
+  img.style.top = `${pos.y}px`;
+
   scene.appendChild(img);
-  img.addEventListener("animationend", () => img.remove());
+
+  // Hiệu ứng hiện dần lên sau khi tìm được vị trí an toàn
+  setTimeout(() => {
+    img.style.opacity = "1";
+    // Thêm một chút xoay ngẫu nhiên để trông tự nhiên hơn
+    img.style.transform = `rotate(${(Math.random() - 0.5) * 20}deg)`;
+  }, 100);
 }
 
 // 4. Hàm hiện lời chúc cuối cùng
@@ -89,7 +146,7 @@ function showFinalWish() {
 // 5. Xử lý khi nhấn vào trái tim
 heartBtn.addEventListener("click", () => {
   if (audio.paused) audio.play();
-  
+
   clickCount++;
   heartBtn.classList.add("clicked");
   setTimeout(() => heartBtn.classList.remove("clicked"), 700);
