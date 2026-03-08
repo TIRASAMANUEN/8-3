@@ -1,7 +1,7 @@
-// Hàm tạo ảnh kỷ niệm bay ra
 function createImageElement(index) {
   const img = document.createElement("img");
-  img.src = `ảnh/anh${index}.jpg`; 
+  // Lấy ảnh trực tiếp từ thư mục gốc vì ảnh của bạn đang nằm ở đó
+  img.src = `anh${index}.jpg`; 
   img.className = "phrase shooting";
   img.style.cssText = `
     width: 200px;
@@ -17,14 +17,11 @@ function createImageElement(index) {
   img.addEventListener("animationend", () => img.remove(), { once: true });
 }
 
-// Hàm hiện lời chúc cuối cùng (Không có mã QR)
 function showFinalWish() {
   if (document.getElementById("special-wish")) return;
-
   const el = document.createElement("div");
   el.id = "special-wish";
   el.textContent = "Chúc cốt 8/3 xinh đẹp và đỗ NV1 nhe!!! ❤️";
-  
   el.style.cssText = `
     position: fixed;
     top: 50%;
@@ -39,16 +36,10 @@ function showFinalWish() {
     box-shadow: 0 0 50px rgba(255, 43, 79, 0.8);
     z-index: 9999;
     text-align: center;
-    white-space: normal;
     max-width: 85%;
     opacity: 0; 
-    transition: opacity 2.5s ease;
+    transition: opacity 2s ease;
   `;
-  
   document.getElementById("scene").appendChild(el);
-
-  // Hiệu ứng hiện dần lên
-  setTimeout(() => {
-    el.style.opacity = "1";
-  }, 100);
+  setTimeout(() => { el.style.opacity = "1"; }, 100);
 }
