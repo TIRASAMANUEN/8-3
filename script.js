@@ -79,7 +79,7 @@ function spawnPhoto(index) {
 // 4. Lời chúc chốt hạ ở tâm
 function showFinal() {
   const el = document.createElement("div");
-  el.innerHTML = "Chúc Diệu Linh 8/3 luôn xinh đẹp<br>và đỗ nv1 nha!!! ❤️";
+  el.innerHTML = "Chúc Diệu Linh 8/3 luôn xinh đẹp<br>và đỗ NV1 nhe!!! ❤️";
   el.style.cssText = `
     position: fixed;
     top: 50%; left: 50%;
