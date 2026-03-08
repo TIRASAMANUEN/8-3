@@ -1,105 +1,121 @@
 const scene = document.getElementById("scene");
 const heartBtn = document.getElementById("heartBtn");
 const audio = document.getElementById("audioPlayer");
-const starsContainer = document.getElementById("starsContainer");
 let clickCount = 0;
-const totalPhotos = 10;
+const totalPhotos = 10; // Tổng số ảnh
 
-// 1. Hàm tạo Galaxy nguyên bản của bạn
-function buildGalaxy() {
-  if (!starsContainer) return;
-  starsContainer.innerHTML = "";
-  
-  for (let i = 0; i < 150; i++) {
+// 1. Tạo sao lấp lánh nền
+function createStars() {
+  const container = document.getElementById("starsContainer");
+  for (let i = 0; i < 80; i++) {
     const star = document.createElement("div");
-    const size = Math.random() * 2 + 1.5; 
-    const duration = Math.random() * 3 + 2;
-    
-    star.style.position = "absolute";
-    star.style.backgroundColor = "#ffffff";
-    star.style.borderRadius = "50%";
-    star.style.width = size + "px";
-    star.style.height = size + "px";
+    star.className = "star";
+    star.style.width = Math.random() * 3 + "px";
+    star.style.height = star.style.width;
     star.style.left = Math.random() * 100 + "%";
     star.style.top = Math.random() * 100 + "%";
-    star.style.boxShadow = `0 0 ${size * 2}px #ffffff`;
-    star.style.opacity = Math.random() * 0.8 + 0.2;
-    star.style.animation = `starFlash ${duration}s infinite ease-in-out`;
-    
-    starsContainer.appendChild(star);
+    star.style.setProperty("--duration", Math.random() * 3 + 2 + "s");
+    container.appendChild(star);
   }
 }
+createStars();
 
-// Thêm keyframes cho sao lấp lánh trực tiếp qua JS
-const style = document.createElement('style');
-style.innerHTML = `
-@keyframes starFlash {
-  0%, 100% { opacity: 0.3; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.4); }
-}`;
-document.head.appendChild(style);
-
-buildGalaxy();
-
-// 2. Thuật toán ảnh elip chuẩn của bạn
-function getEllipsePos(index) {
+// 2. Thuật toán xếp ảnh theo hình Elip/Vòng tròn siêu cân đối
+function getEllipseSpot(index, total, w, h) {
   const sw = window.innerWidth;
   const sh = window.innerHeight;
-  const rx = Math.min(sw * 0.35, sw / 2 - 130);
-  const ry = Math.min(sh * 0.38, sh / 2 - 130);
-  const angle = (index - 1) * (Math.PI * 2) / 10 - Math.PI / 2;
-  
-  return {
-    x: sw / 2 + rx * Math.cos(angle) - 75,
-    y: sh / 2 + ry * Math.sin(angle) - 105
-  };
+  const cx = sw / 2;
+  const cy = sh / 2;
+
+  // Bán kính Elip: Chiếm khoảng 70% không gian từ tâm ra viền màn hình
+  // Dùng Math.min để đảm bảo ảnh không bao giờ bị tràn ra khỏi màn hình
+  const rx = Math.min((sw / 2) * 0.70, (sw / 2) - w / 2 - 20);
+  const ry = Math.min((sh / 2) * 0.75, (sh / 2) - h / 2 - 20);
+
+  // Chia đều 360 độ (2*PI) cho 10 ảnh. Trừ đi PI/2 để ảnh đầu tiên nằm chóp đỉnh
+  const angle = (index - 1) * (Math.PI * 2) / total - Math.PI / 2;
+
+  const x = cx + rx * Math.cos(angle) - w / 2;
+  const y = cy + ry * Math.sin(angle) - h / 2;
+
+  return { x, y };
 }
 
+// 3. Hiện ảnh với hiệu ứng mượt mà
 function spawnPhoto(index) {
   const img = document.createElement("img");
-  img.className = "photo-frame";
   img.src = `anh${index}.jpg`;
   img.onerror = () => { img.src = `ảnh/anh${index}.jpg`; };
-  
-  const pos = getEllipsePos(index);
-  const rotation = (Math.random() - 0.5) * 25;
 
-  img.style.left = pos.x + "px";
-  img.style.top = pos.y + "px";
-  img.style.transform = `rotate(${rotation}deg) scale(0)`;
-  
+  const w = 150; const h = 210; // Kích thước ảnh nhỏ lại 1 chút để k bị chật
+  const spot = getEllipseSpot(index, totalPhotos, w, h);
+
+  // Cho ảnh nghiêng nhẹ ngẫu nhiên để trông nghệ thuật hơn (như ảnh polaroid thật)
+  const randomRotate = (Math.random() - 0.5) * 25; 
+
+  img.style.cssText = `
+    position: absolute;
+    width: ${w}px;
+    height: ${h}px;
+    left: ${spot.x}px;
+    top: ${spot.y}px;
+    border: 5px solid white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+    object-fit: cover;
+    z-index: 10;
+    transform: rotate(${randomRotate}deg) scale(0);
+    transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  `;
+
   scene.appendChild(img);
-  setTimeout(() => { img.style.transform = `rotate(${rotation}deg) scale(1)`; }, 50);
+  
+  // Kích hoạt hiệu ứng bung ảnh
+  setTimeout(() => { 
+    img.style.transform = `rotate(${randomRotate}deg) scale(1)`; 
+  }, 50);
 }
 
-// 3. Hàm hiển thị lời chúc (Đã fix lỗi cú pháp)
+// 4. Lời chúc chốt hạ ở tâm
 function showFinal() {
-  const box = document.createElement("div");
-  box.innerHTML = "Chúc cốt 8/3 xinh đẹp<br>và đỗ NV1 nhe!!! ❤️";
-  box.style.cssText = `
-    position: fixed; top: 50%; left: 50%;
+  const el = document.createElement("div");
+  el.innerHTML = "Chúc cốt 8/3 xinh đẹp<br>và đỗ NV1 nhe!!! ❤️";
+  el.style.cssText = `
+    position: fixed;
+    top: 50%; left: 50%;
     transform: translate(-50%, -50%) scale(0);
     background: linear-gradient(135deg, #ff6b81, #ff2b4f);
-    padding: 25px 45px; border-radius: 50px;
-    color: white; font-size: 1.6rem; font-family: 'Pattaya', sans-serif;
-    text-align: center; box-shadow: 0 0 50px #ff2b4f;
-    z-index: 200; transition: transform 0.8s ease;
+    padding: 30px 50px;
+    border-radius: 50px;
+    color: white;
+    font-size: 1.8rem;
+    font-family: 'Pattaya', sans-serif;
+    text-align: center;
+    box-shadow: 0 0 50px rgba(255, 43, 79, 0.9);
+    z-index: 100;
+    transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    white-space: nowrap;
   `;
-  document.body.appendChild(box);
-  setTimeout(() => { box.style.transform = "translate(-50%, -50%) scale(1)"; }, 100);
+  scene.appendChild(el);
+  setTimeout(() => el.style.transform = "translate(-50%, -50%) scale(1)", 100);
 }
 
-// 4. Sự kiện click trái tim
+// 5. Nút bấm
 heartBtn.addEventListener("click", () => {
-  if (audio.paused) {
-    audio.play().catch(e => console.log("Bật nhạc"));
-  }
+  if (audio.paused) audio.play().catch(()=>{});
   
   if (clickCount < totalPhotos) {
     clickCount++;
+    
+    // Hiệu ứng đập tim từ style.css
+    heartBtn.classList.add("clicked");
+    setTimeout(() => heartBtn.classList.remove("clicked"), 500);
+
     spawnPhoto(clickCount);
+    
+    // Nếu là lần bấm thứ 10, bung luôn lời chúc
     if (clickCount === totalPhotos) {
-      setTimeout(showFinal, 800);
+      setTimeout(() => showFinal(), 200);
     }
   }
 });
