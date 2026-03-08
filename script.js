@@ -5,62 +5,62 @@ const starsContainer = document.getElementById("starsContainer");
 let clickCount = 0;
 const totalPhotos = 10;
 
-// 1. Hàm tạo Galaxy trắng sáng - Chống đốm đen tuyệt đối
+// 1. Hàm tạo Galaxy - Đảm bảo TRẮNG, SÁNG, NẰM DƯỚI
 function buildGalaxy() {
   if (!starsContainer) return;
   
-  // Xóa sạch để làm mới
   starsContainer.innerHTML = "";
   
-  // Ép container hiện lên trên cùng của lớp nền
+  // Ép vùng chứa sao nằm dưới cùng nhưng trên Nebula
   starsContainer.style.position = "absolute";
   starsContainer.style.inset = "0";
-  starsContainer.style.zIndex = "1";
+  starsContainer.style.zIndex = "0"; // Nằm dưới trái tim (z-index 100)
   starsContainer.style.pointerEvents = "none";
 
-  for (let i = 0; i < 160; i++) {
+  for (let i = 0; i < 150; i++) {
     const star = document.createElement("div");
-    const size = Math.random() * 2 + 0.8;
+    // Tăng kích thước để không bị thành đốm đen (1.5px - 3.5px)
+    const size = Math.random() * 2 + 1.5; 
     const duration = Math.random() * 3 + 2;
     
-    // Thiết lập từng thuộc tính để ép trình duyệt bỏ qua CSS cũ
     star.style.position = "absolute";
-    star.style.backgroundColor = "#ffffff"; // Trắng tinh khiết
+    star.style.backgroundColor = "#ffffff"; // Trắng tinh
     star.style.borderRadius = "50%";
     star.style.width = size + "px";
     star.style.height = size + "px";
     star.style.left = Math.random() * 100 + "%";
     star.style.top = Math.random() * 100 + "%";
     
-    // Tạo quầng sáng trắng quanh sao
-    star.style.boxShadow = `0 0 ${size * 2}px #ffffff, 0 0 ${size * 4}px rgba(255,255,255,0.8)`;
+    // Đổ bóng màu trắng mạnh để tạo độ rực rỡ
+    star.style.boxShadow = `0 0 ${size * 2}px #ffffff, 0 0 ${size * 5}px rgba(255,255,255,0.9)`;
+    star.style.opacity = Math.random() * 0.8 + 0.2;
+    star.style.filter = "none"; // Chặn mọi filter làm tối sao
     
-    star.style.opacity = Math.random() * 0.7 + 0.3;
-    star.style.zIndex = "2";
-    
-    // Gán animation lấp lánh
-    star.style.animation = `pureSparkle ${duration}s infinite ease-in-out`;
+    // Gán animation
+    star.style.animation = `starFlash ${duration}s infinite ease-in-out`;
     
     starsContainer.appendChild(star);
   }
 }
 
-// 2. Chèn trực tiếp Animation vào tài liệu
+// 2. Chèn CSS bổ sung để cố định thứ tự hiển thị
 const styleSheet = document.createElement("style");
 styleSheet.textContent = `
-  @keyframes pureSparkle {
+  @keyframes starFlash {
     0%, 100% { opacity: 0.3; transform: scale(1); }
-    50% { opacity: 1; transform: scale(1.5); }
+    50% { opacity: 1; transform: scale(1.4); }
   }
-  /* Đảm bảo trái tim luôn nằm trên sao */
-  #heartBtn { z-index: 100 !important; position: relative; }
+  /* Trái tim phải nằm trên cùng */
+  .heart-container { z-index: 100 !important; position: relative; }
+  #heartBtn { z-index: 101 !important; }
+  /* Đảm bảo ảnh cũng nằm trên sao */
+  .scene img { z-index: 50 !important; }
 `;
 document.head.appendChild(styleSheet);
 
-// Chạy ngay khi tải trang
 buildGalaxy();
 
-// 3. Hàm tính toán vị trí ảnh (Vòng Elip nghệ thuật)
+// 3. Logic ảnh (Giữ nguyên thuật toán Elip chuẩn của bạn)
 function getEllipsePos(index) {
   const sw = window.innerWidth;
   const sh = window.innerHeight;
@@ -91,7 +91,6 @@ function spawnPhoto(index) {
   img.style.borderRadius = "12px";
   img.style.boxShadow = "0 10px 30px rgba(0,0,0,0.6)";
   img.style.objectFit = "cover";
-  img.style.zIndex = "50";
   img.style.transform = `rotate(${rotation}deg) scale(0)`;
   img.style.transition = "transform 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
   
@@ -100,39 +99,4 @@ function spawnPhoto(index) {
 }
 
 function showFinal() {
-  const box = document.createElement("div");
-  box.innerHTML = "Chúc cốt 8/3 xinh đẹp<br>và đỗ NV1 nhe!!! ❤️";
-  box.style.cssText = `
-    position: fixed; top: 50%; left: 50%;
-    transform: translate(-50%, -50%) scale(0);
-    background: linear-gradient(135deg, #ff6b81, #ff2b4f);
-    padding: 25px 45px; border-radius: 50px;
-    color: white; font-size: 1.6rem; font-family: 'Pattaya', sans-serif;
-    text-align: center; box-shadow: 0 0 50px #ff2b4f;
-    z-index: 200; transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    white-space: nowrap;
-  `;
-  scene.appendChild(box);
-  setTimeout(() => { box.style.transform = "translate(-50%, -50%) scale(1)"; }, 100);
-}
-
-// 4. Sự kiện Click
-heartBtn.addEventListener("click", () => {
-  if (audio.paused) audio.play().catch(() => {});
-  
-  if (clickCount < totalPhotos) {
-    clickCount++;
-    // Hiệu ứng đập tim
-    heartBtn.classList.add("clicked");
-    setTimeout(() => heartBtn.classList.remove("clicked"), 700);
-    
-    spawnPhoto(clickCount);
-    
-    if (clickCount === totalPhotos) {
-      setTimeout(showFinal, 600);
-    }
-  }
-});
-
-// Cập nhật lại sao khi thay đổi kích thước màn hình
-window.addEventListener("resize", buildGalaxy);
+  const box = document.createElement("div
