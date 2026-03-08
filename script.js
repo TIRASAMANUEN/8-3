@@ -31,12 +31,11 @@ function buildGalaxy() {
     star.style.left = Math.random() * 100 + "%";
     star.style.top = Math.random() * 100 + "%";
     
-    // Đổ bóng màu trắng mạnh để tạo độ rực rỡ
+    // Đổ bóng màu trắng mạnh để tạo độ rực rỡ, xóa tan đốm đen
     star.style.boxShadow = `0 0 ${size * 2}px #ffffff, 0 0 ${size * 5}px rgba(255,255,255,0.9)`;
     star.style.opacity = Math.random() * 0.8 + 0.2;
-    star.style.filter = "none"; // Chặn mọi filter làm tối sao
+    star.style.filter = "none"; 
     
-    // Gán animation
     star.style.animation = `starFlash ${duration}s infinite ease-in-out`;
     
     starsContainer.appendChild(star);
@@ -50,9 +49,9 @@ styleSheet.textContent = `
     0%, 100% { opacity: 0.3; transform: scale(1); }
     50% { opacity: 1; transform: scale(1.4); }
   }
-  /* Trái tim phải nằm trên cùng */
+  /* Trái tim và container phải nằm trên cùng */
   .heart-container { z-index: 100 !important; position: relative; }
-  #heartBtn { z-index: 101 !important; }
+  #heartBtn { z-index: 101 !important; position: relative; }
   /* Đảm bảo ảnh cũng nằm trên sao */
   .scene img { z-index: 50 !important; }
 `;
@@ -60,7 +59,7 @@ document.head.appendChild(styleSheet);
 
 buildGalaxy();
 
-// 3. Logic ảnh (Giữ nguyên thuật toán Elip chuẩn của bạn)
+// 3. Logic ảnh (Vòng Elip)
 function getEllipsePos(index) {
   const sw = window.innerWidth;
   const sh = window.innerHeight;
@@ -76,6 +75,7 @@ function getEllipsePos(index) {
 
 function spawnPhoto(index) {
   const img = document.createElement("img");
+  // Kiểm tra cả 2 đường dẫn ảnh phổ biến
   img.src = `anh${index}.jpg`;
   img.onerror = () => { img.src = `ảnh/anh${index}.jpg`; };
   
@@ -98,5 +98,11 @@ function spawnPhoto(index) {
   setTimeout(() => { img.style.transform = `rotate(${rotation}deg) scale(1)`; }, 50);
 }
 
+// 4. Hàm hiển thị lời chúc cuối cùng (Phần bị thiếu)
 function showFinal() {
-  const box = document.createElement("div
+  const box = document.createElement("div");
+  box.innerHTML = "Chúc cốt 8/3 xinh đẹp<br>và đỗ NV1 nhe!!! ❤️";
+  box.style.cssText = `
+    position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: linear-gradient(135deg, #
