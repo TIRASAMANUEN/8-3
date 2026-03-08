@@ -1,7 +1,16 @@
+// Bạn cần giữ lại các hàm bổ trợ như applyMotion và các biến clickCount ở đầu file cũ của bạn nhé
+// Dưới đây là 2 hàm quan trọng nhất cần thay thế:
+
 function createImageElement(index) {
   const img = document.createElement("img");
-  // Lấy ảnh trực tiếp từ thư mục gốc vì ảnh của bạn đang nằm ở đó
+  // Thử tìm ảnh ở thư mục gốc trước (anh1.jpg)
   img.src = `anh${index}.jpg`; 
+  
+  // Nếu không thấy ảnh ở gốc, tự động tìm trong thư mục "ảnh"
+  img.onerror = function() {
+    this.src = `ảnh/anh${index}.jpg`;
+  };
+
   img.className = "phrase shooting";
   img.style.cssText = `
     width: 200px;
@@ -12,8 +21,12 @@ function createImageElement(index) {
     object-fit: cover;
     z-index: 100;
   `;
-  applyMotion(img);
-  scene.appendChild(img);
+  
+  if (typeof applyMotion === "function") {
+    applyMotion(img);
+  }
+  
+  document.getElementById("scene").appendChild(img);
   img.addEventListener("animationend", () => img.remove(), { once: true });
 }
 
