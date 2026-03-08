@@ -1,31 +1,28 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gửi Cốt ❤️</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Pattaya&display=swap" rel="stylesheet">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gửi Cốt ❤️</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pattaya&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-
-    <div class="scene" id="scene" data-bg="stars">
-        <div class="stars-container" id="starsContainer"></div>
-
-        <div class="heart-container">
-            <button id="heartBtn" class="heart-btn">
-                <div class="heart">
-                    <svg viewBox="0 0 256 256">
-                        <path class="core" d="M128 216s-88-51.5-88-112c0-30 24-54 54-54 18.5 0 35 11 43.5 28 8.5-17 25-28 43.5-28 30 0 54 24 54 54 0 60.5-88 112-88 112z"></path>
-                        <path class="shine" d="M85 75c-10 0-18 8-18 18 0 2 4 2 4 0 0-8 6-14 14-14 2 0 2-4 0-4z"></path>
-                    </svg>
-                </div>
-            </button>
-        </div>
-
-        <audio id="audioPlayer" src="music.mp3" loop></audio>
+  <div id="scene" class="scene" data-bg="stars">
+    <div id="starsContainer" class="stars-container"></div>
+    
+    <div class="heart-container">
+      <button id="heartBtn" class="heart-btn">
+        <span class="heart">
+          <svg viewBox="0 0 200 180">
+            <path class="core" d="M100,162.2C17.7,99.5,6,77.5,6,52.3C6,27.1,27.1,6,52.3,6c15.4,0,30.8,7.7,40,20.6l7.7,9.6l7.7-9.6 c9.2-12.9,24.6-20.6,40-20.6c25.2,0,46.3,21.1,46.3,46.3c0,25.2-11.7,47.2-94,109.9L100,162.2L100,162.2z" />
+          </svg>
+        </span>
+      </button>
     </div>
+  </div>
 
-    <script src="script.js"></script>
+  <audio id="audioPlayer" loop><source src="nhac.mp3" type="audio/mpeg"></audio>
+  <script src="script.js"></script>
 </body>
 </html>
