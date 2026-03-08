@@ -2,9 +2,9 @@ const scene = document.getElementById("scene");
 const heartBtn = document.getElementById("heartBtn");
 const audio = document.getElementById("audioPlayer");
 let clickCount = 0;
-const placedPhotos = [];
+const totalPhotos = 10; // Tổng số ảnh
 
-// 1. Tạo sao lấp lánh (dựa trên class của style.css)
+// 1. Tạo sao lấp lánh nền
 function createStars() {
   const container = document.getElementById("starsContainer");
   for (let i = 0; i < 80; i++) {
@@ -20,65 +20,63 @@ function createStars() {
 }
 createStars();
 
-// 2. Thuật toán tìm chỗ an toàn (Tránh đè lời chúc và đè nhau)
-function getSafeSpot(w, h) {
+// 2. Thuật toán xếp ảnh theo hình Elip/Vòng tròn siêu cân đối
+function getEllipseSpot(index, total, w, h) {
   const sw = window.innerWidth;
   const sh = window.innerHeight;
   const cx = sw / 2;
   const cy = sh / 2;
-  const safeR = 250; // Vùng cấm to ra một chút để lời chúc thoáng hơn
 
-  for (let i = 0; i < 200; i++) {
-    const x = Math.random() * (sw - w - 40) + 20;
-    const y = Math.random() * (sh - h - 40) + 20;
+  // Bán kính Elip: Chiếm khoảng 70% không gian từ tâm ra viền màn hình
+  // Dùng Math.min để đảm bảo ảnh không bao giờ bị tràn ra khỏi màn hình
+  const rx = Math.min((sw / 2) * 0.70, (sw / 2) - w / 2 - 20);
+  const ry = Math.min((sh / 2) * 0.75, (sh / 2) - h / 2 - 20);
 
-    const dist = Math.sqrt(Math.pow(x + w/2 - cx, 2) + Math.pow(y + h/2 - cy, 2));
-    if (dist < safeR) continue;
+  // Chia đều 360 độ (2*PI) cho 10 ảnh. Trừ đi PI/2 để ảnh đầu tiên nằm chóp đỉnh
+  const angle = (index - 1) * (Math.PI * 2) / total - Math.PI / 2;
 
-    let hit = false;
-    for (const p of placedPhotos) {
-      if (!(x + w + 15 < p.x || x > p.x + p.w + 15 || y + h + 15 < p.y || y > p.y + p.h + 15)) {
-        hit = true; break;
-      }
-    }
-    if (!hit) {
-      placedPhotos.push({x, y, w, h});
-      return {x, y};
-    }
-  }
-  return {x: Math.random() * (sw-w), y: Math.random() * (sh-h)};
+  const x = cx + rx * Math.cos(angle) - w / 2;
+  const y = cy + ry * Math.sin(angle) - h / 2;
+
+  return { x, y };
 }
 
-// 3. Hiện ảnh (Code này miễn nhiễm với mọi lỗi biến mất)
+// 3. Hiện ảnh với hiệu ứng mượt mà
 function spawnPhoto(index) {
   const img = document.createElement("img");
   img.src = `anh${index}.jpg`;
   img.onerror = () => { img.src = `ảnh/anh${index}.jpg`; };
 
-  const w = 170; const h = 230;
-  const spot = getSafeSpot(w, h);
+  const w = 150; const h = 210; // Kích thước ảnh nhỏ lại 1 chút để k bị chật
+  const spot = getEllipseSpot(index, totalPhotos, w, h);
 
-  // Viết thẳng CSS vào ảnh để không bị file css bên ngoài can thiệp
+  // Cho ảnh nghiêng nhẹ ngẫu nhiên để trông nghệ thuật hơn (như ảnh polaroid thật)
+  const randomRotate = (Math.random() - 0.5) * 25; 
+
   img.style.cssText = `
     position: absolute;
     width: ${w}px;
     height: ${h}px;
     left: ${spot.x}px;
     top: ${spot.y}px;
-    border: 6px solid white;
+    border: 5px solid white;
     border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.6);
     object-fit: cover;
     z-index: 10;
-    transform: rotate(${(Math.random() - 0.5) * 30}deg) scale(0);
+    transform: rotate(${randomRotate}deg) scale(0);
     transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   `;
 
   scene.appendChild(img);
-  setTimeout(() => { img.style.transform = img.style.transform.replace("scale(0)", "scale(1)"); }, 50);
+  
+  // Kích hoạt hiệu ứng bung ảnh
+  setTimeout(() => { 
+    img.style.transform = `rotate(${randomRotate}deg) scale(1)`; 
+  }, 50);
 }
 
-// 4. Lời chúc cuối cùng
+// 4. Lời chúc chốt hạ ở tâm
 function showFinal() {
   const el = document.createElement("div");
   el.innerHTML = "Chúc cốt 8/3 xinh đẹp<br>và đỗ NV1 nhe!!! ❤️";
@@ -93,7 +91,7 @@ function showFinal() {
     font-size: 1.8rem;
     font-family: 'Pattaya', sans-serif;
     text-align: center;
-    box-shadow: 0 0 50px rgba(255, 43, 79, 0.8);
+    box-shadow: 0 0 50px rgba(255, 43, 79, 0.9);
     z-index: 100;
     transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     white-space: nowrap;
@@ -105,12 +103,19 @@ function showFinal() {
 // 5. Nút bấm
 heartBtn.addEventListener("click", () => {
   if (audio.paused) audio.play().catch(()=>{});
-  clickCount++;
   
-  // Kích hoạt class "clicked" để nháy hiệu ứng trong style.css của bạn
-  heartBtn.classList.add("clicked");
-  setTimeout(() => heartBtn.classList.remove("clicked"), 800);
+  if (clickCount < totalPhotos) {
+    clickCount++;
+    
+    // Hiệu ứng đập tim từ style.css
+    heartBtn.classList.add("clicked");
+    setTimeout(() => heartBtn.classList.remove("clicked"), 500);
 
-  if (clickCount <= 9) spawnPhoto(clickCount);
-  if (clickCount === 10) showFinal();
+    spawnPhoto(clickCount);
+    
+    // Nếu là lần bấm thứ 10, bung luôn lời chúc
+    if (clickCount === totalPhotos) {
+      setTimeout(() => showFinal(), 200);
+    }
+  }
 });
