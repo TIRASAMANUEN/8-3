@@ -23,4 +23,40 @@
                 <stop offset="100%" stop-color="#c91534" />
               </radialGradient>
             </defs>
-            <path class="core" d="M100,162.2C17.7,99.5,6,77.5,6,52.3C6,27.1,27.1,6,52.3,6c15.4,0,30.8,7.7,40,20.6l7.7,9.6l7.7-9.6 c9.2-12.
+            <path class="core" d="M100,162.2C17.7,99.5,6,77.5,6,52.3C6,27.1,27.1,6,52.3,6c15.4,0,30.8,7.7,40,20.6l7.7,9.6l7.7-9.6 c9.2-12.9,24.6-20.6,40-20.6c25.2,0,46.3,21.1,46.3,46.3c0,25.2-11.7,47.2-94,109.9L100,162.2L100,162.2z" fill="url(#g)" />
+            <path class="shine" d="M73 47c-12 0-23 6-29 16-2 3-1 7 2 9 3 2 7 1 9-2 4-7 12-11 20-11 4 0 7-3 7-7s-3-5-9-5Z" />
+          </svg>
+        </span>
+      </button>
+    </div>
+
+    <div class="music-player" id="musicPlayer">
+      <button class="toggle-btn" id="toggleBtn">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="toggleIcon">
+          <path d="M7 10l5 5 5-5z" />
+        </svg>
+      </button>
+      <button class="play-pause-btn" id="playPauseBtn">
+        <svg id="playIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 5v14l11-7z" />
+        </svg>
+        <svg id="pauseIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display: none">
+          <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+        </svg>
+      </button>
+      <div class="progress-container">
+        <div class="song-info">Chúc Mừng 8/3 💖</div>
+        <div class="progress-bar" id="progressBar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <audio id="audioPlayer" loop>
+    <source src="nhac.mp3" type="audio/mpeg" />
+  </audio>
+
+  <script src="script.js"></script>
+</body>
+</html>
